@@ -1,0 +1,57 @@
+<mxfile host="Electron" modified="2026-06-11T03:16:00Z" agent="5.0" version="22.1.2" type="device">
+  <diagram id="crisp-dm-workflow" name="50 Startups CRISP-DM Workflow">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Phase 1 -->
+        <mxCell id="2" value="&lt;b&gt;1. Business Understanding (商業理解)&lt;/b&gt;&lt;br/&gt;定義目標：最佳化研發、行政與行銷預算以最大化利潤&lt;br/&gt;確認成功指標：測試集 R² 評分、MAE 及 RMSE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="40" width="360" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Phase 2 -->
+        <mxCell id="3" value="&lt;b&gt;2. Data Understanding (資料理解)&lt;/b&gt;&lt;br/&gt;載入 50 Startups 資料集，檢查缺失值與重複值&lt;br/&gt;探索利潤分佈（偏態 0.0233）與相關性熱力圖（R&amp;D 相關度 0.973）&lt;br/&gt;識別 Index 49 為真實商業情境的「合法極端值」並予以保留" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="160" width="360" height="85" as="geometry" />
+        </mxCell>
+        
+        <!-- Phase 3 -->
+        <mxCell id="4" value="&lt;b&gt;3. Data Preparation (資料準備)&lt;/b&gt;&lt;br/&gt;使用 StandardScaler 標準化支出數值特徵&lt;br/&gt;One-Hot 編碼州別特徵，排除 California 避免虛擬變數陷阱&lt;br/&gt;進行 VIF 多重共線性檢查（特徵 VIF &amp;lt; 5，無多重共線性風險）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="295" width="360" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Phase 4 -->
+        <mxCell id="5" value="&lt;b&gt;4. Modeling (模型建立)&lt;/b&gt;&lt;br/&gt;建立機器學習 Pipeline 串接前處理與迴歸演算法&lt;br/&gt;訓練多元線性迴歸 (OLS)、Ridge 迴歸與隨機森林迴歸模型" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="420" width="360" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Phase 5 -->
+        <mxCell id="6" value="&lt;b&gt;5. Evaluation (模型評估)&lt;/b&gt;&lt;br/&gt;進行 5-Fold 交叉驗證以驗證小樣本下線性模型與隨機森林的穩定度&lt;br/&gt;利用 MDI 與 Permutation Importance 分析特徵重要性&lt;br/&gt;使用 SHAP 進行可解釋性歸因，繪製特徵漸進效能圖（以 random_state=0 拐點優化）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="530" width="360" height="85" as="geometry" />
+        </mxCell>
+        
+        <!-- Phase 6 -->
+        <mxCell id="7" value="&lt;b&gt;6. Deployment (模型部署)&lt;/b&gt;&lt;br/&gt;將最佳 Pipeline 儲存至 best_startup_model.joblib 模型檔&lt;br/&gt;實作 server.py 後端 API 載入模型提供預測端點&lt;br/&gt;建立 index.html 前端網頁（滑桿即時連動、預算比例圖、AI 專家建議）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="160" y="665" width="360" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Edges -->
+        <mxCell id="8" edge="1" parent="1" source="2" target="3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#4e73df;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9" edge="1" parent="1" source="3" target="4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#1cc88a;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="10" edge="1" parent="1" source="4" target="5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#f6c23e;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11" edge="1" parent="1" source="5" target="6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#e74a3b;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="12" edge="1" parent="1" source="6" target="7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#858796;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
