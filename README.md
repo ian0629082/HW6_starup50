@@ -3,8 +3,8 @@
 
 本專案利用 **Kaggle 50 Startups** 資料集，建立迴歸分析模型以預測新創公司的年度利潤（Profit）。專案內建了特徵篩選比較系統，並實作了一個採用毛玻璃暗色設計主題的互動式 Web 獲利模擬器。
 
-### 📊 專案工作流程圖 (CRISP-DM Workflow - Excalidraw Style)
-![CRISP-DM Workflow](workflow.png)
+### 📊 專案成果與工作流程彙整圖 (Project Summary Dashboard)
+![Project Summary Dashboard](workflow.png)
 
 ---
 

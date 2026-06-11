@@ -73,11 +73,11 @@
 
 ---
 
-## 📌 五、專案工作流程圖 (CRISP-DM Workflow)
+## 📌 五、專案成果與工作流程彙整圖 (Project Summary Dashboard)
 
-本專案之開發流程完全遵循 **CRISP-DM (Cross-Industry Standard Process for Data Mining)** 規範，其核心步驟與工作流如下圖所示：
+本專案之開發工作成果與 CRISP-DM 流程彙整如下圖所示：
 
-![CRISP-DM Workflow](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/workflow.png)
+![Project Summary Dashboard](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/workflow.png)
 
 ### 📂 Draw.io 流程圖檔案說明
 我們已生成結構化的 XML 流程圖，並存放在專案根目錄下：
