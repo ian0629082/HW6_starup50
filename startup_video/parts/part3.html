@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Startup Profit AI Simulator Part 3</title>
+    <style>
+      html, body { margin:0; width:100%; height:100%; background:#f7f0dd; overflow:hidden; font-family:Arial,sans-serif; color:#16212a; }
+      .root { position:relative; width:1080px; height:1920px; overflow:hidden; background:radial-gradient(circle at 18% 12%, rgba(244,200,74,.42), rgba(244,200,74,0) 34%), radial-gradient(circle at 90% 8%, rgba(139,92,246,.22), rgba(139,92,246,0) 32%), radial-gradient(circle at 82% 86%, rgba(0,168,168,.24), rgba(0,168,168,0) 38%), #f7f0dd; }
+      .grain { position:absolute; inset:0; opacity:.16; background-image:linear-gradient(rgba(22,33,42,.16) 1px, rgba(22,33,42,0) 1px), linear-gradient(90deg, rgba(22,33,42,.12) 1px, rgba(22,33,42,0) 1px); background-size:34px 34px; z-index:0; }
+      .meta { position:absolute; left:72px; top:54px; right:72px; display:flex; align-items:center; justify-content:space-between; font-size:22px; font-weight:800; letter-spacing:.02em; z-index:20; }
+      .tag { border:3px solid #16212a; border-radius:999px; padding:12px 22px; background:rgba(247,240,221,.72); box-shadow:6px 6px 0 rgba(22,33,42,.18); }
+      .count { font-family:Consolas,monospace; color:#00a8a8; text-shadow:2px 2px 0 rgba(22,33,42,.16); }
+      .stage { position:absolute; left:72px; right:72px; top:180px; height:1220px; perspective:1600px; z-index:10; }
+      .slide-shell { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+      .slide-card { position:relative; width:936px; height:522px; transform-style:preserve-3d; border:5px solid #16212a; border-radius:22px; background:#f7f0dd; box-shadow:24px 30px 0 rgba(22,33,42,.18), 0 34px 90px rgba(22,33,42,.22); overflow:hidden; }
+      .slide-card img { width:100%; height:100%; object-fit:cover; display:block; }
+      .shine { position:absolute; inset:0; background:linear-gradient(110deg, rgba(255,255,255,0) 10%, rgba(255,255,255,.58) 48%, rgba(255,255,255,0) 72%); transform:translateX(-120%); opacity:0; }
+      .caption-wrap { position:absolute; left:70px; right:70px; bottom:230px; height:230px; display:flex; align-items:center; justify-content:center; z-index:30; }
+      .caption { position:absolute; max-width:880px; padding:28px 34px; border:4px solid #16212a; border-radius:24px; background:rgba(247,240,221,.92); box-shadow:12px 14px 0 rgba(0,168,168,.28); font-size:42px; line-height:1.38; font-weight:800; text-align:center; opacity:0; visibility:hidden; }
+      .accent-line { position:absolute; left:74px; right:74px; bottom:185px; height:8px; border-radius:999px; background:#00a8a8; transform-origin:left center; z-index:25; }
+      .corner-note { position:absolute; right:72px; bottom:76px; width:300px; min-height:135px; padding:26px; box-sizing:border-box; background:#f4c84a; border:4px solid #16212a; box-shadow:12px 14px 0 rgba(22,33,42,.2); transform:rotate(-4deg); z-index:18; font-size:24px; font-weight:900; line-height:1.25; }
+      .ring { position:absolute; width:210px; height:210px; border:8px solid #f05d5e; border-radius:50%; left:-54px; bottom:104px; opacity:.5; z-index:5; }
+</style>
+  </head>
+  <body>
+    <div id="startup-profit-video-part-3" class="root" data-composition-id="startup-profit-video-part-3" data-start="0" data-duration="39.071" data-width="1080" data-height="1920">
+      <audio id="narration" data-start="0" data-duration="39.071" data-track-index="0" src="../assets/narration_fast_part3.wav" data-volume="1"></audio>
+      <div class="grain" data-layout-ignore></div>
+      <div class="meta"><div class="tag">Startup Profit AI Simulator</div><div class="count" id="counter">11 / 20</div></div>
+      <div class="stage" id="stage"></div>
+      <div class="caption-wrap" id="captions"></div>
+      <div class="accent-line"></div>
+      <div class="corner-note">CRISP-DM<br />Data to Decision</div>
+      <div class="ring" data-layout-ignore></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      const DURATION = 39.071;
+      const START_SLIDE = 11;
+      const SLIDES = [{"slide":11,"start":0,"end":7.479,"audioEnd":7.129,"duration":7.479},{"slide":12,"start":7.479,"end":14.826,"audioEnd":14.476,"duration":7.347},{"slide":13,"start":14.826,"end":23.028,"audioEnd":22.678,"duration":8.202},{"slide":14,"start":23.028,"end":31.506,"audioEnd":31.156,"duration":8.478},{"slide":15,"start":31.506,"end":39.071,"audioEnd":38.721,"duration":7.565}];
+      const CAPTIONS = [{"start":0.2,"end":7.129,"text":"模型比較包含線性迴歸、Ridge，以及 Random Forest。"},{"start":7.679,"end":14.476,"text":"Random Forest 在測試集上取得最佳誤差表現。"},{"start":15.026,"end":22.678,"text":"交叉驗證顯示，線性模型依然穩定且具解釋性。"},{"start":23.228,"end":31.156,"text":"特徵重要性指出，研發支出是最主要的預測訊號。"},{"start":31.706,"end":38.721,"text":"SHAP 分析支持相同結論：高研發投入推升預測利潤。"}];
+      const stage = document.getElementById("stage");
+      const captions = document.getElementById("captions");
+      const counter = document.getElementById("counter");
+      SLIDES.forEach((slide, i) => {
+        const slideNo = slide.slide;
+        const shell = document.createElement("div");
+        shell.className = "slide-shell";
+        shell.id = "slide-" + slideNo;
+        shell.setAttribute("data-start", slide.start.toFixed(3));
+        shell.setAttribute("data-duration", slide.duration.toFixed(3));
+        shell.setAttribute("data-track-index", "1");
+        shell.innerHTML = '<div class="slide-card"><img src="../assets/slides/image' + slideNo + '.png" crossorigin="anonymous" /><div class="shine" data-layout-ignore></div></div>';
+        stage.appendChild(shell);
+      });
+      CAPTIONS.forEach((group, i) => {
+        const el = document.createElement("div");
+        el.className = "caption";
+        el.id = "caption-" + i;
+        el.textContent = group.text;
+        captions.appendChild(el);
+      });
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(".meta .tag", { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: "expo.out" }, 0.2);
+      tl.fromTo(".meta .count", { x: 35, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "back.out(1.2)" }, 0.35);
+      tl.fromTo(".corner-note", { rotation: -11, y: 80, opacity: 0 }, { rotation: -4, y: 0, opacity: 1, duration: 0.75, ease: "power3.out" }, 0.55);
+      tl.fromTo(".accent-line", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power4.out" }, 0.55);
+      tl.to(".ring", { scale: 1.08, rotation: 8, yoyo: true, repeat: Math.floor(DURATION / 4) - 1, duration: 2, ease: "sine.inOut" }, 0);
+      tl.to(".grain", { x: 18, y: -18, yoyo: true, repeat: Math.floor(DURATION / 6) - 1, duration: 3, ease: "sine.inOut" }, 0);
+      SLIDES.forEach((slide, i) => {
+        const slideNo = slide.slide;
+        const start = slide.start;
+        const slideDuration = slide.duration;
+        const shell = "#slide-" + slideNo;
+        const card = shell + " .slide-card";
+        tl.set(shell, { visibility: "visible" }, start);
+        tl.set(counter, { textContent: String(slideNo).padStart(2, "0") + " / 20" }, start + 0.05);
+        tl.fromTo(card, { opacity: 0, x: i % 2 === 0 ? 260 : -260, rotationY: i % 2 === 0 ? -42 : 42, rotationZ: i % 3 === 0 ? -2 : 2, scale: 0.86 }, { opacity: 1, x: 0, rotationY: 0, rotationZ: i % 3 === 0 ? -1 : 1, scale: 1, duration: 0.9, ease: i % 2 === 0 ? "power4.out" : "expo.out" }, start + 0.16);
+        tl.to(card, { y: i % 2 === 0 ? -16 : 16, duration: Math.max(1, slideDuration - 1.1), ease: "none" }, start + 0.9);
+        tl.to(card, { boxShadow: "18px 24px 0 rgba(22, 33, 42, 0.16), 0 30px 76px rgba(22, 33, 42, 0.20)", duration: 0.8, ease: "sine.inOut" }, start + 1.2);
+        tl.fromTo(card + " .shine", { opacity: 0, x: "-120%" }, { opacity: 1, x: "240%", duration: 0.85, ease: "power2.inOut" }, start + 0.78);
+      });
+      CAPTIONS.forEach((group, i) => {
+        const el = "#caption-" + i;
+        tl.set(el, { visibility: "visible" }, group.start);
+        tl.fromTo(el, { opacity: 0, y: 36, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.48, ease: "power3.out" }, group.start);
+        tl.to(el, { opacity: 0, scale: 0.97, duration: 0.16, ease: "power2.in" }, group.end - 0.16);
+        tl.set(el, { opacity: 0, visibility: "hidden" }, group.end);
+      });
+      
+      window.__timelines["startup-profit-video-part-3"] = tl;
+    </script>
+  </body>
+</html>

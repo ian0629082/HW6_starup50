@@ -1,0 +1,146 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const ROOT = path.resolve(".");
+const PART_DIR = path.join(ROOT, "parts");
+fs.mkdirSync(PART_DIR, { recursive: true });
+
+const captions = JSON.parse(fs.readFileSync(path.join(ROOT, "captions.json"), "utf8"));
+const narrationTiming = JSON.parse(fs.readFileSync(path.join(ROOT, "assets", "narration_timing.json"), "utf8"));
+const partStarts = [0, 5, 10, 15].map((index) => narrationTiming[index].start);
+const partEnds = [5, 10, 15].map((index) => narrationTiming[index].start);
+partEnds.push(narrationTiming[narrationTiming.length - 1].end);
+
+function partDuration(partIndex) {
+  return +(partEnds[partIndex] - partStarts[partIndex]).toFixed(3);
+}
+
+function css() {
+  return `
+      html, body { margin:0; width:100%; height:100%; background:#f7f0dd; overflow:hidden; font-family:Arial,sans-serif; color:#16212a; }
+      .root { position:relative; width:1080px; height:1920px; overflow:hidden; background:radial-gradient(circle at 18% 12%, rgba(244,200,74,.42), rgba(244,200,74,0) 34%), radial-gradient(circle at 90% 8%, rgba(139,92,246,.22), rgba(139,92,246,0) 32%), radial-gradient(circle at 82% 86%, rgba(0,168,168,.24), rgba(0,168,168,0) 38%), #f7f0dd; }
+      .grain { position:absolute; inset:0; opacity:.16; background-image:linear-gradient(rgba(22,33,42,.16) 1px, rgba(22,33,42,0) 1px), linear-gradient(90deg, rgba(22,33,42,.12) 1px, rgba(22,33,42,0) 1px); background-size:34px 34px; z-index:0; }
+      .meta { position:absolute; left:72px; top:54px; right:72px; display:flex; align-items:center; justify-content:space-between; font-size:22px; font-weight:800; letter-spacing:.02em; z-index:20; }
+      .tag { border:3px solid #16212a; border-radius:999px; padding:12px 22px; background:rgba(247,240,221,.72); box-shadow:6px 6px 0 rgba(22,33,42,.18); }
+      .count { font-family:Consolas,monospace; color:#00a8a8; text-shadow:2px 2px 0 rgba(22,33,42,.16); }
+      .stage { position:absolute; left:72px; right:72px; top:180px; height:1220px; perspective:1600px; z-index:10; }
+      .slide-shell { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+      .slide-card { position:relative; width:936px; height:522px; transform-style:preserve-3d; border:5px solid #16212a; border-radius:22px; background:#f7f0dd; box-shadow:24px 30px 0 rgba(22,33,42,.18), 0 34px 90px rgba(22,33,42,.22); overflow:hidden; }
+      .slide-card img { width:100%; height:100%; object-fit:cover; display:block; }
+      .shine { position:absolute; inset:0; background:linear-gradient(110deg, rgba(255,255,255,0) 10%, rgba(255,255,255,.58) 48%, rgba(255,255,255,0) 72%); transform:translateX(-120%); opacity:0; }
+      .caption-wrap { position:absolute; left:70px; right:70px; bottom:230px; height:230px; display:flex; align-items:center; justify-content:center; z-index:30; }
+      .caption { position:absolute; max-width:880px; padding:28px 34px; border:4px solid #16212a; border-radius:24px; background:rgba(247,240,221,.92); box-shadow:12px 14px 0 rgba(0,168,168,.28); font-size:42px; line-height:1.38; font-weight:800; text-align:center; opacity:0; visibility:hidden; }
+      .accent-line { position:absolute; left:74px; right:74px; bottom:185px; height:8px; border-radius:999px; background:#00a8a8; transform-origin:left center; z-index:25; }
+      .corner-note { position:absolute; right:72px; bottom:76px; width:300px; min-height:135px; padding:26px; box-sizing:border-box; background:#f4c84a; border:4px solid #16212a; box-shadow:12px 14px 0 rgba(22,33,42,.2); transform:rotate(-4deg); z-index:18; font-size:24px; font-weight:900; line-height:1.25; }
+      .ring { position:absolute; width:210px; height:210px; border:8px solid #f05d5e; border-radius:50%; left:-54px; bottom:104px; opacity:.5; z-index:5; }
+`;
+}
+
+function partHtml(partIndex) {
+  const offset = partStarts[partIndex];
+  const duration = partDuration(partIndex);
+  const startSlide = partIndex * 5 + 1;
+  const localSlides = narrationTiming.slice(partIndex * 5, partIndex * 5 + 5).map((timing, i) => {
+    const next = narrationTiming[timing.slide] || { start: timing.end };
+    return {
+      slide: timing.slide,
+      start: +(timing.start - offset).toFixed(3),
+      end: +(Math.min(next.start, partEnds[partIndex]) - offset).toFixed(3),
+      audioEnd: +(timing.end - offset).toFixed(3),
+      duration: +(Math.min(next.start, partEnds[partIndex]) - timing.start).toFixed(3),
+    };
+  });
+  const localCaptions = localSlides.map((slide) => {
+    const caption = captions[slide.slide - 1];
+    return {
+      start: +(slide.start + 0.2).toFixed(3),
+      end: +(Math.min(slide.audioEnd, slide.end - 0.12)).toFixed(3),
+      text: caption.text,
+    };
+  });
+  const lastPart = partIndex === 3;
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Startup Profit AI Simulator Part ${partIndex + 1}</title>
+    <style>${css()}</style>
+  </head>
+  <body>
+    <div id="startup-profit-video-part-${partIndex + 1}" class="root" data-composition-id="startup-profit-video-part-${partIndex + 1}" data-start="0" data-duration="${duration}" data-width="1080" data-height="1920">
+      <audio id="narration" data-start="0" data-duration="${duration}" data-track-index="0" src="../assets/narration_fast_part${partIndex + 1}.wav" data-volume="1"></audio>
+      <div class="grain" data-layout-ignore></div>
+      <div class="meta"><div class="tag">Startup Profit AI Simulator</div><div class="count" id="counter">${String(startSlide).padStart(2, "0")} / 20</div></div>
+      <div class="stage" id="stage"></div>
+      <div class="caption-wrap" id="captions"></div>
+      <div class="accent-line"></div>
+      <div class="corner-note">CRISP-DM<br />Data to Decision</div>
+      <div class="ring" data-layout-ignore></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      const DURATION = ${duration};
+      const START_SLIDE = ${startSlide};
+      const SLIDES = ${JSON.stringify(localSlides)};
+      const CAPTIONS = ${JSON.stringify(localCaptions)};
+      const stage = document.getElementById("stage");
+      const captions = document.getElementById("captions");
+      const counter = document.getElementById("counter");
+      SLIDES.forEach((slide, i) => {
+        const slideNo = slide.slide;
+        const shell = document.createElement("div");
+        shell.className = "slide-shell";
+        shell.id = "slide-" + slideNo;
+        shell.setAttribute("data-start", slide.start.toFixed(3));
+        shell.setAttribute("data-duration", slide.duration.toFixed(3));
+        shell.setAttribute("data-track-index", "1");
+        shell.innerHTML = '<div class="slide-card"><img src="../assets/slides/image' + slideNo + '.png" crossorigin="anonymous" /><div class="shine" data-layout-ignore></div></div>';
+        stage.appendChild(shell);
+      });
+      CAPTIONS.forEach((group, i) => {
+        const el = document.createElement("div");
+        el.className = "caption";
+        el.id = "caption-" + i;
+        el.textContent = group.text;
+        captions.appendChild(el);
+      });
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(".meta .tag", { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65, ease: "expo.out" }, 0.2);
+      tl.fromTo(".meta .count", { x: 35, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "back.out(1.2)" }, 0.35);
+      tl.fromTo(".corner-note", { rotation: -11, y: 80, opacity: 0 }, { rotation: -4, y: 0, opacity: 1, duration: 0.75, ease: "power3.out" }, 0.55);
+      tl.fromTo(".accent-line", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power4.out" }, 0.55);
+      tl.to(".ring", { scale: 1.08, rotation: 8, yoyo: true, repeat: Math.floor(DURATION / 4) - 1, duration: 2, ease: "sine.inOut" }, 0);
+      tl.to(".grain", { x: 18, y: -18, yoyo: true, repeat: Math.floor(DURATION / 6) - 1, duration: 3, ease: "sine.inOut" }, 0);
+      SLIDES.forEach((slide, i) => {
+        const slideNo = slide.slide;
+        const start = slide.start;
+        const slideDuration = slide.duration;
+        const shell = "#slide-" + slideNo;
+        const card = shell + " .slide-card";
+        tl.set(shell, { visibility: "visible" }, start);
+        tl.set(counter, { textContent: String(slideNo).padStart(2, "0") + " / 20" }, start + 0.05);
+        tl.fromTo(card, { opacity: 0, x: i % 2 === 0 ? 260 : -260, rotationY: i % 2 === 0 ? -42 : 42, rotationZ: i % 3 === 0 ? -2 : 2, scale: 0.86 }, { opacity: 1, x: 0, rotationY: 0, rotationZ: i % 3 === 0 ? -1 : 1, scale: 1, duration: 0.9, ease: i % 2 === 0 ? "power4.out" : "expo.out" }, start + 0.16);
+        tl.to(card, { y: i % 2 === 0 ? -16 : 16, duration: Math.max(1, slideDuration - 1.1), ease: "none" }, start + 0.9);
+        tl.to(card, { boxShadow: "18px 24px 0 rgba(22, 33, 42, 0.16), 0 30px 76px rgba(22, 33, 42, 0.20)", duration: 0.8, ease: "sine.inOut" }, start + 1.2);
+        tl.fromTo(card + " .shine", { opacity: 0, x: "-120%" }, { opacity: 1, x: "240%", duration: 0.85, ease: "power2.inOut" }, start + 0.78);
+      });
+      CAPTIONS.forEach((group, i) => {
+        const el = "#caption-" + i;
+        tl.set(el, { visibility: "visible" }, group.start);
+        tl.fromTo(el, { opacity: 0, y: 36, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.48, ease: "power3.out" }, group.start);
+        tl.to(el, { opacity: 0, scale: 0.97, duration: 0.16, ease: "power2.in" }, group.end - 0.16);
+        tl.set(el, { opacity: 0, visibility: "hidden" }, group.end);
+      });
+      ${lastPart ? `tl.to(".root", { backgroundColor: "#16212a", duration: 0.8, ease: "power1.inOut" }, DURATION - 1); tl.to(".stage, .caption-wrap, .meta, .corner-note, .accent-line", { opacity: 0, duration: 0.65, ease: "power2.in" }, DURATION - 0.8);` : ""}
+      window.__timelines["startup-profit-video-part-${partIndex + 1}"] = tl;
+    </script>
+  </body>
+</html>`;
+}
+
+for (let i = 0; i < 4; i++) {
+  fs.writeFileSync(path.join(PART_DIR, `part${i + 1}.html`), partHtml(i));
+}
+
+console.log("Generated parts/part1.html through parts/part4.html");

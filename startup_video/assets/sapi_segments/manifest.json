@@ -1,0 +1,102 @@
+﻿[
+    {
+        "index":  1,
+        "file":  "assets\\sapi_segments\\segment_01.wav",
+        "text":  "這份專案，從一個很實際的問題開始：新創公司要如何分配有限資源，才更有機會提高利潤。"
+    },
+    {
+        "index":  2,
+        "file":  "assets\\sapi_segments\\segment_02.wav",
+        "text":  "我們使用 Kaggle 50 Startups 資料集，分析研發、行政、行銷與地區，對公司利潤的影響。"
+    },
+    {
+        "index":  3,
+        "file":  "assets\\sapi_segments\\segment_03.wav",
+        "text":  "整個流程採用 CRISP-DM，從商業理解，到資料理解、資料準備、建模、評估，最後走向部署。"
+    },
+    {
+        "index":  4,
+        "file":  "assets\\sapi_segments\\segment_04.wav",
+        "text":  "在商業目標上，我們不只想預測利潤，也想知道哪些支出真正推動成長。"
+    },
+    {
+        "index":  5,
+        "file":  "assets\\sapi_segments\\segment_05.wav",
+        "text":  "資料集共有五十筆新創公司資料，欄位包含 R and D spend、Administration、Marketing Spend、State，以及 Profit。"
+    },
+    {
+        "index":  6,
+        "file":  "assets\\sapi_segments\\segment_06.wav",
+        "text":  "初步探索顯示，利潤分布相當接近常態，州別樣本也相對平衡，因此資料本身適合進一步建模。"
+    },
+    {
+        "index":  7,
+        "file":  "assets\\sapi_segments\\segment_07.wav",
+        "text":  "相關矩陣揭露最重要的訊號：研發支出與利潤的相關係數高達零點九七三，是最強的線性關係。"
+    },
+    {
+        "index":  8,
+        "file":  "assets\\sapi_segments\\segment_08.wav",
+        "text":  "同時，行銷支出也有正向關聯；但行政支出與地區變數，對利潤的直接解釋力明顯較弱。"
+    },
+    {
+        "index":  9,
+        "file":  "assets\\sapi_segments\\segment_09.wav",
+        "text":  "在資料準備階段，我們保留有效離群值，因為它代表真實商業失敗案例，而不是單純錯誤資料。"
+    },
+    {
+        "index":  10,
+        "file":  "assets\\sapi_segments\\segment_10.wav",
+        "text":  "類別變數透過 One Hot Encoding 轉換，數值欄位則使用 StandardScaler，避免尺度差異影響模型。"
+    },
+    {
+        "index":  11,
+        "file":  "assets\\sapi_segments\\segment_11.wav",
+        "text":  "建模階段比較三種方法：Multiple Linear Regression、Ridge Regression，以及 Random Forest Regressor。"
+    },
+    {
+        "index":  12,
+        "file":  "assets\\sapi_segments\\segment_12.wav",
+        "text":  "測試集結果顯示，Random Forest 的 R squared 達到零點九一四七，MAE 與 RMSE 也最低。"
+    },
+    {
+        "index":  13,
+        "file":  "assets\\sapi_segments\\segment_13.wav",
+        "text":  "不過交叉驗證告訴我們，線性模型其實非常穩定，代表這個資料集的主要結構仍然偏線性。"
+    },
+    {
+        "index":  14,
+        "file":  "assets\\sapi_segments\\segment_14.wav",
+        "text":  "特徵重要性分析更清楚指出，R and D Spend 佔了最主要貢獻，Marketing Spend 則是第二層輔助訊號。"
+    },
+    {
+        "index":  15,
+        "file":  "assets\\sapi_segments\\segment_15.wav",
+        "text":  "SHAP 分析也支持同樣結論：高研發投入通常帶來更高的預測利潤，方向清楚且穩定。"
+    },
+    {
+        "index":  16,
+        "file":  "assets\\sapi_segments\\segment_16.wav",
+        "text":  "進一步做特徵選擇後，最佳組合反而很精簡，只需要 R and D Spend 加上 Marketing Spend。"
+    },
+    {
+        "index":  17,
+        "file":  "assets\\sapi_segments\\segment_17.wav",
+        "text":  "這個兩特徵模型達到最低 RMSE，約八千一百九十九，R squared 約零點九四七四。"
+    },
+    {
+        "index":  18,
+        "file":  "assets\\sapi_segments\\segment_18.wav",
+        "text":  "因此，對商業決策來說，重點不是放進最多欄位，而是抓住真正有解釋力的關鍵變數。"
+    },
+    {
+        "index":  19,
+        "file":  "assets\\sapi_segments\\segment_19.wav",
+        "text":  "最後，我們將最佳模型封裝成 joblib pipeline，讓前端模擬器可以輸入預算並即時預測利潤。"
+    },
+    {
+        "index":  20,
+        "file":  "assets\\sapi_segments\\segment_20.wav",
+        "text":  "這份 Startup Profit AI Simulator，把資料分析、模型解釋與互動部署串成一個完整的決策輔助流程。"
+    }
+]

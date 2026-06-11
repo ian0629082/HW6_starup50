@@ -1,0 +1,142 @@
+[
+  {
+    "slide": 1,
+    "file": "assets/sapi_segments_rate2/segment_01.wav",
+    "start": 0,
+    "end": 7.866,
+    "duration": 7.866
+  },
+  {
+    "slide": 2,
+    "file": "assets/sapi_segments_rate2/segment_02.wav",
+    "start": 8.216,
+    "end": 15.598,
+    "duration": 7.381
+  },
+  {
+    "slide": 3,
+    "file": "assets/sapi_segments_rate2/segment_03.wav",
+    "start": 15.948,
+    "end": 24.035,
+    "duration": 8.087
+  },
+  {
+    "slide": 4,
+    "file": "assets/sapi_segments_rate2/segment_04.wav",
+    "start": 24.385,
+    "end": 30.676,
+    "duration": 6.292
+  },
+  {
+    "slide": 5,
+    "file": "assets/sapi_segments_rate2/segment_05.wav",
+    "start": 31.026,
+    "end": 39.698,
+    "duration": 8.671
+  },
+  {
+    "slide": 6,
+    "file": "assets/sapi_segments_rate2/segment_06.wav",
+    "start": 40.048,
+    "end": 48.276,
+    "duration": 8.228
+  },
+  {
+    "slide": 7,
+    "file": "assets/sapi_segments_rate2/segment_07.wav",
+    "start": 48.626,
+    "end": 57.002,
+    "duration": 8.376
+  },
+  {
+    "slide": 8,
+    "file": "assets/sapi_segments_rate2/segment_08.wav",
+    "start": 57.352,
+    "end": 65.191,
+    "duration": 7.839
+  },
+  {
+    "slide": 9,
+    "file": "assets/sapi_segments_rate2/segment_09.wav",
+    "start": 65.541,
+    "end": 73.646,
+    "duration": 8.105
+  },
+  {
+    "slide": 10,
+    "file": "assets/sapi_segments_rate2/segment_10.wav",
+    "start": 73.996,
+    "end": 81.453,
+    "duration": 7.457
+  },
+  {
+    "slide": 11,
+    "file": "assets/sapi_segments_rate2/segment_11.wav",
+    "start": 81.803,
+    "end": 88.932,
+    "duration": 7.129
+  },
+  {
+    "slide": 12,
+    "file": "assets/sapi_segments_rate2/segment_12.wav",
+    "start": 89.282,
+    "end": 96.279,
+    "duration": 6.996
+  },
+  {
+    "slide": 13,
+    "file": "assets/sapi_segments_rate2/segment_13.wav",
+    "start": 96.629,
+    "end": 104.481,
+    "duration": 7.852
+  },
+  {
+    "slide": 14,
+    "file": "assets/sapi_segments_rate2/segment_14.wav",
+    "start": 104.831,
+    "end": 112.959,
+    "duration": 8.128
+  },
+  {
+    "slide": 15,
+    "file": "assets/sapi_segments_rate2/segment_15.wav",
+    "start": 113.309,
+    "end": 120.524,
+    "duration": 7.215
+  },
+  {
+    "slide": 16,
+    "file": "assets/sapi_segments_rate2/segment_16.wav",
+    "start": 120.874,
+    "end": 128.066,
+    "duration": 7.192
+  },
+  {
+    "slide": 17,
+    "file": "assets/sapi_segments_rate2/segment_17.wav",
+    "start": 128.416,
+    "end": 135.398,
+    "duration": 6.982
+  },
+  {
+    "slide": 18,
+    "file": "assets/sapi_segments_rate2/segment_18.wav",
+    "start": 135.748,
+    "end": 143.139,
+    "duration": 7.391
+  },
+  {
+    "slide": 19,
+    "file": "assets/sapi_segments_rate2/segment_19.wav",
+    "start": 143.489,
+    "end": 151.19,
+    "duration": 7.7
+  },
+  {
+    "slide": 20,
+    "file": "assets/sapi_segments_rate2/segment_20.wav",
+    "start": 151.54,
+    "end": 159.735,
+    "duration": 8.195
+  }
+]
