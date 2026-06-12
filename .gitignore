@@ -8,3 +8,5 @@ __pycache__/
 .agents/
 skills-lock.json
 startup_video/renders/part*
+server_access.log
+server_error.log

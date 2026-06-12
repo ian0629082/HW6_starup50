@@ -45,6 +45,9 @@ def calculate_vif(X_df):
     return pd.Series(vifs)
 
 def run_pipeline():
+    # Ensure images directory exists
+    os.makedirs("images", exist_ok=True)
+
     # =========================================================================
     # PHASE 1: BUSINESS UNDERSTANDING (商業理解)
     # =========================================================================
@@ -109,7 +112,7 @@ def run_pipeline():
     plt.text(125000, 6.5, "Skewness = 0.0233\nDistribution is near-normal\nNo log transform required", 
              fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
     plt.tight_layout()
-    profit_dist_path = "profit_distribution.png"
+    profit_dist_path = os.path.join("images", "profit_distribution.png")
     plt.savefig(profit_dist_path, dpi=150)
     plt.close()
     print(f"已保存 Profit 分佈圖至: {profit_dist_path}")
@@ -128,7 +131,7 @@ def run_pipeline():
     plt.figtext(0.5, 0.02, "Note: All numeric expense features exhibit normal distributions without extreme outliers.", 
                 ha="center", fontsize=10, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1'))
     plt.tight_layout()
-    features_box_path = "features_boxplot.png"
+    features_box_path = os.path.join("images", "features_boxplot.png")
     plt.savefig(features_box_path, dpi=150)
     plt.close()
     print(f"已保存數值型特徵箱線圖至: {features_box_path}")
@@ -151,7 +154,7 @@ def run_pipeline():
     plt.text(1.0, 35000, "Median profits are very similar across states.\nGeographical location has negligible direct effect.", 
              ha="center", fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
     plt.tight_layout()
-    state_box_path = "state_profit_boxplot.png"
+    state_box_path = os.path.join("images", "state_profit_boxplot.png")
     plt.savefig(state_box_path, dpi=150)
     plt.close()
     print(f"已保存 State vs Profit 箱線圖至: {state_box_path}")
@@ -174,7 +177,7 @@ def run_pipeline():
     plt.figtext(0.5, 0.01, "Key Insight: R&D Spend shows near-perfect correlation (0.973) with Profit.\nWarning: Correlation is not causation.", 
                 ha="center", fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1'))
     plt.tight_layout()
-    heatmap_path = "correlation_heatmap.png"
+    heatmap_path = os.path.join("images", "correlation_heatmap.png")
     plt.savefig(heatmap_path, dpi=150)
     plt.close()
     print(f"已更新相關性熱力圖至: {heatmap_path}")
@@ -190,7 +193,7 @@ def run_pipeline():
     plt.text(80000, 35000, "Profit has a highly linear relationship with R&D Spend.\nStates (colors) show similar slope patterns.", 
              fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
     plt.tight_layout()
-    scatter_path = "profit_vs_rd_scatter.png"
+    scatter_path = os.path.join("images", "profit_vs_rd_scatter.png")
     plt.savefig(scatter_path, dpi=150)
     plt.close()
     print(f"已保存 Profit vs R&D 散點圖至: {scatter_path}\n")
@@ -363,7 +366,7 @@ def run_pipeline():
              fontsize=10, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
     plt.legend()
     plt.tight_layout()
-    eval_plot_path = "actual_vs_predicted.png"
+    eval_plot_path = os.path.join("images", "actual_vs_predicted.png")
     plt.savefig(eval_plot_path, dpi=150)
     plt.close()
     print(f"\n已保存預測對比圖至: {eval_plot_path}")
@@ -392,7 +395,7 @@ def run_pipeline():
     plt.text(0.4, 3.2, "R&D Spend dominates with 92.79% importance.\nMarketing Spend has a secondary impact of 6.33%.", 
              fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
     plt.tight_layout()
-    importance_plot_path = "feature_importance.png"
+    importance_plot_path = os.path.join("images", "feature_importance.png")
     plt.savefig(importance_plot_path, dpi=150)
     plt.close()
     print(f"已保存隨機森林特徵重要性條形圖至: {importance_plot_path}")
@@ -426,7 +429,7 @@ def run_pipeline():
     plt.figtext(0.5, 0.01, "High R&D Spend (red) shifts predictions significantly to the right (higher profit).\nAdmin and State cluster around 0, representing near-zero marginal impact.", 
                 ha="center", fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1'))
     plt.tight_layout()
-    shap_plot_path = "shap_summary_plot.png"
+    shap_plot_path = os.path.join("images", "shap_summary_plot.png")
     plt.savefig(shap_plot_path, dpi=150)
     plt.close()
     print(f"已保存 SHAP Summary Plot 至: {shap_plot_path}")
@@ -443,7 +446,7 @@ def run_pipeline():
     plt.text(100000, 15000, "Residuals are randomly scattered around the zero line.\nThis confirms the Homoscedasticity assumption.", 
              ha="center", fontsize=9, bbox=dict(facecolor='white', alpha=0.85, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
     plt.tight_layout()
-    residual_plot_path = "residual_plot.png"
+    residual_plot_path = os.path.join("images", "residual_plot.png")
     plt.savefig(residual_plot_path, dpi=150)
     plt.close()
     print(f"已保存殘差分析散點圖至: {residual_plot_path}\n")
@@ -517,7 +520,7 @@ def run_pipeline():
         # 不手動設定 xticks，以保留預設的浮點數刻度 (1.0, 1.5, ..., 5.0)
         
         plt.tight_layout()
-        fs_plot_path = "feature_selection_plot.png"
+        fs_plot_path = os.path.join("images", "feature_selection_plot.png")
         plt.savefig(fs_plot_path, dpi=150)
         plt.close()
     print(f"已保存特徵個數效能對比圖至: {fs_plot_path}\n")

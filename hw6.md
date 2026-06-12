@@ -19,10 +19,13 @@
 2.  **特徵漸進效能分析對齊 (`solve_50_startups.py` & `feature_selection_plot.png`)**：
     *   將特徵遞增評估的隨機分割調整為與樣板完全對齊的 `random_state=0`。
     *   **糾正樣板錯誤標籤**：樣板中 $k=5$ 的標籤誤標為 `State_California`，但實際參與計算並得出 RMSE=9137.99 與 R2=0.9347 的特徵是 **`Administration` (行政管理費用)**。為了不引入錯誤資訊，我們在代碼與表格中修正了此特徵名稱，實現了數據 100% 精準對齊。
-3.  **五大特徵篩選算法全景對比 (`feature_selection_comparison.py` & `allinone.png`)**：
-    *   同時實現了 **RFE (遞歸消除)**、**Lasso (L1正則)**、**SelectKBest (統計檢定)**、**Tree-Based (樹模型重要性)** 與 **SFS (序列前向)** 五大算法。
-    *   在相同的 `random_state=0` 下評估，證實 Lasso 的篩選軌跡與樣板完美契合，所有算法一致表明 `R&D Spend + Marketing Spend` 是最優特徵組合。
-4.  **獲利預估互動式應用程式 (`server.py` & `index.html`)**：
+3.  **9大特徵篩選算法全景對比 (`feature_selection_comparison.py` & `feature_selection_plots/feature_selection_plot.png`)**：
+    *   同時實現了包含 **Correlation Analysis**、**Chi-Square Test**、**ANOVA F-Test**、**Mutual Information**、**SelectKBest**、**RFE**、**Forward Selection**、**Lasso** 與 **Tree-Based Importance** 在內的 9 大特徵篩選演算法。
+    *   在相同的 `random_state=0` 下評估，證實 Lasso 與 Mutual Info 的篩選軌跡與樣板完美契合，所有算法一致表明 `R&D Spend + Marketing Spend` 是最優特徵組合。
+4.  **特徵篩選理論與三大分類指南文檔 ([feature_selection.md](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/feature_selection.md))**：
+    *   將機器學習中最推薦的 Top 9 特徵篩選方法系統性地歸類為 Filter (篩選法)、Wrapper (包裝法)、Embedded (嵌入法) 三大類別。
+    *   論述了特徵篩選的五大主要目的（降維、防過擬合、提速、防雜訊、增可解釋性），並詳解了 50 Startups 資料集（多元迴歸）的適用特徵選擇方法與實作工作流。
+5.  **獲利預估互動式應用程式 (`server.py` & `index.html`)**：
     *   **後端 (`server.py`)**：基於 Python 標準庫 `http.server` 構建輕量級伺服器，載入序列化隨機森林模型，開啟預測端點 `/predict`。
     *   **前端 (`index.html`)**：打造極具視覺質感的 **毛玻璃暗色主題 (Glassmorphism Dark Theme)**。提供研發、行政、行銷費用拖拉滑桿、註冊州切換按鈕、預估利潤動態計數動畫，以及動態 AI 財務顧問建議。同時內建 JavaScript 線性代數公式計算備援，確保高可用性。
 
@@ -50,15 +53,26 @@
 | **4** | `[R&D Spend, Marketing Spend, State_New York, State_Florida]` | 8,409.916714 | 0.944697 |
 | **5** | `[R&D Spend, Marketing Spend, State_New York, State_Florida, Administration]` | 9,137.990153 | 0.934707 |
 
+### 3. 9大特徵篩選演算法對比表 (Test $R^2$ 評分對比)
+*基於 `random_state=0` 分割，對抗雜訊與特徵篩選能力對比：*
+
+| 特徵數量 $k$ | Correlation | Chi-Square | ANOVA F-Test | Mutual Info | SelectKBest | RFE | Forward Selection | Lasso | Tree-Based |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **$k=1$** | 0.9465 | 0.9465 | 0.9465 | 0.9465 | 0.9465 | 0.9465 | 0.9465 | 0.9465 | 0.9465 |
+| **$k=2$** | **0.9474** | **0.9474** | **0.9474** | **0.9474** | **0.9474** | **0.9474** | **0.9474** | **0.9474** | **0.9474** |
+| **$k=3$** | 0.9394 | 0.9451 | 0.9394 | **0.9460** | 0.9394 | 0.9451 | 0.9394 | **0.9460** | 0.9394 |
+| **$k=4$** | 0.9367 | 0.9357 | 0.9357 | 0.9447 | 0.9367 | 0.9357 | 0.9367 | 0.9447 | 0.9357 |
+| **$k=5$** | 0.9347 | 0.9347 | 0.9347 | 0.9347 | 0.9347 | 0.9347 | 0.9347 | 0.9347 | 0.9347 |
+
 ---
 
 ## 📌 三、圖表註記說明
 
 我們已更新了繪圖程式碼，在所有生成的圖片檔案中**直接嵌入了結果分析註記與 Footnotes**：
-*   **[actual_vs_predicted.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/actual_vs_predicted.png)**：標註了模型隨機森林指標與測試集擬合良好的結論。
-*   **[shap_summary_plot.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/shap_summary_plot.png)**：標註了研發支出的主導正向邊際貢獻，行政與地區變數的無效分佈。
-*   **[feature_selection_plot.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/feature_selection_plot.png)**：標註了最優特徵個數 $k=2$ 拐點，以及後續特徵引入噪聲導致表現下滑的統計學解讀。
-*   **[allinone.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/allinone.png)**：將 5 種算法在 `random_state=0` 分割下的各特徵數 Test $R^2$ 繪製在一張圖上，標註了不同算法特徵選擇路徑的異同點。
+*   **[actual_vs_predicted.png](images/actual_vs_predicted.png)**：標註了模型隨機森林指標與測試集擬合良好的結論。
+*   **[shap_summary_plot.png](images/shap_summary_plot.png)**：標註了研發支出的主導正向邊際貢獻，行政與地區變數的無效分佈。
+*   **[feature_selection_plot.png](images/feature_selection_plot.png)**：標註了最優特徵個數 $k=2$ 拐點，以及後續特徵引入噪聲導致表現下滑的統計學解讀。
+*   **[allinone.png](feature_selection_plots/allinone.png)**：將 9 大演算法在 `random_state=0` 分割下的各特徵數 Test $R^2$ 及 RMSE 繪製在一張雙子圖上，展示多角度特徵選擇表現。
 
 ---
 
@@ -77,7 +91,7 @@
 
 本專案之開發流程完全遵循 **CRISP-DM (Cross-Industry Standard Process for Data Mining)** 規範，其核心步驟與工作流如下圖所示：
 
-![CRISP-DM Workflow](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/workflow.png)
+![CRISP-DM Workflow](images/workflow.png)
 
 ### 📂 Draw.io 流程圖檔案說明
 我們已生成結構化的 XML 流程圖，並存放在專案根目錄下：

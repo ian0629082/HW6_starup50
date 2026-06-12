@@ -155,7 +155,7 @@ Data columns (total 5 columns):
 ### 2.2.1 Target Variable (Profit) Distribution
 *   **Skewness Coefficient**: `0.0233`
 *   **Analysis**: A skewness value of `0.0233` indicates that the distribution of `Profit` is highly symmetric and extremely close to a normal distribution. Thus, log-transformation (e.g., $log(Profit)$) is **not** required for modeling.
-*   **Visual Asset**: [profit_distribution.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0609/L6/profit_distribution.png) shows a bell-shaped histogram with an aligned Kernel Density Estimate (KDE) curve.
+*   **Visual Asset**: [profit_distribution.png](images/profit_distribution.png) shows a bell-shaped histogram with an aligned Kernel Density Estimate (KDE) curve.
 
 ### 2.2.2 Categorical Feature Analysis (State Distribution)
 *   **Sample Counts by State**:
@@ -163,7 +163,7 @@ Data columns (total 5 columns):
     *   **New York**: 17 startups
     *   **Florida**: 16 startups
 *   **Balance Check**: The distribution is highly balanced (calibrated at approximately 34% / 34% / 32%), eliminating any concern regarding spatial data skew.
-*   **Regional Performance Boxplot**: Analyzing profit metrics across states via [state_profit_boxplot.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0609/L6/state_profit_boxplot.png) shows similar median and interquartile ranges, indicating that regional factors (State) have a minor direct impact on company profitability.
+*   **Regional Performance Boxplot**: Analyzing profit metrics across states via [state_profit_boxplot.png](images/state_profit_boxplot.png) shows similar median and interquartile ranges, indicating that regional factors (State) have a minor direct impact on company profitability.
 
 ### 2.2.3 Correlation Matrix
 Linear correlation coefficients between the numeric variables are presented below:
@@ -179,7 +179,7 @@ Linear correlation coefficients between the numeric variables are presented belo
 > **Correlation is not causation.** Although `R&D Spend` shows an extremely strong positive linear correlation (0.973) with `Profit`, we cannot directly infer that increasing R&D budget will mathematically cause profit to rise by a fixed margin without considering product-market fit, operational efficiency, and overall market circumstances.
 
 ### 2.2.4 Scatter Plot Analysis
-*   The relationship between R&D Spend and Profit is plotted in [profit_vs_rd_scatter.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0609/L6/profit_vs_rd_scatter.png). The plot depicts a highly linear upward trend across all states, reinforcing R&D's dominant role in profit generation.
+*   The relationship between R&D Spend and Profit is plotted in [profit_vs_rd_scatter.png](images/profit_vs_rd_scatter.png). The plot depicts a highly linear upward trend across all states, reinforcing R&D's dominant role in profit generation.
 
 ### 2.2.5 Outlier Identification
 *   Using the standard Interquartile Range (IQR) method on `Profit`:
@@ -286,11 +286,11 @@ Evaluates performance drops when individual features are randomly shuffled:
 *   **Administration**: `-0.0027` (No prediction power, acts as slight noise)
 
 ### 5.2.3 SHAP (SHapley Additive exPlanations) Analysis
-*   [shap_summary_plot.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0609/L6/shap_summary_plot.png) shows that high `R&D Spend` values (red points) map directly to high positive SHAP values, showing a strong positive impact on profitability.
+*   [shap_summary_plot.png](images/shap_summary_plot.png) shows that high `R&D Spend` values (red points) map directly to high positive SHAP values, showing a strong positive impact on profitability.
 *   `Marketing Spend` has a moderate positive impact, while `Administration` and `State` cluster tightly near zero, indicating they have little to no impact on predictions.
 
 ## 5.3 Diagnostic Residual Analysis
-*   The residual plot [residual_plot.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0609/L6/residual_plot.png) displays test residuals scattered randomly around the $y=0$ reference line, confirming that assumptions of **homoscedasticity** and linear independence are fully satisfied.
+*   The residual plot [residual_plot.png](images/residual_plot.png) displays test residuals scattered randomly around the $y=0$ reference line, confirming that assumptions of **homoscedasticity** and linear independence are fully satisfied.
 
 ## 5.4 Feature Count vs. Performance Analysis
 Evaluating the Linear Regression model by sequentially adding features on a `random_state=0`, `test_size=0.2` split:
@@ -303,7 +303,7 @@ Evaluating the Linear Regression model by sequentially adding features on a `ran
 | **4** | `[R&D Spend, Marketing Spend, State_New York, State_Florida]` | 8,409.916714 | 0.944697 |
 | **5** | `[R&D Spend, Marketing Spend, State_New York, State_Florida, Administration]` | 9,137.990153 | 0.934707 |
 
-*   **Conclusion**: Model performance peaks using only 2 features (`R&D Spend` + `Marketing Spend`), achieving the lowest RMSE of `8,198.797191` and the highest R-squared of `0.947439`. Adding the dummy regional variables and administrative budget introduces noise, causing the RMSE to rise to `9,137.990153` and R-squared to drop to `0.934707` (as demonstrated in [feature_selection_plot.png](file:///c:/Users/a0970/OneDrive/Desktop/AI%20class/0611/HW6/feature_selection_plot.png)).
+*   **Conclusion**: Model performance peaks using only 2 features (`R&D Spend` + `Marketing Spend`), achieving the lowest RMSE of `8,198.797191` and the highest R-squared of `0.947439`. Adding the dummy regional variables and administrative budget introduces noise, causing the RMSE to rise to `9,137.990153` and R-squared to drop to `0.934707` (as demonstrated in [feature_selection_plot.png](images/feature_selection_plot.png)).
 
 ---
 

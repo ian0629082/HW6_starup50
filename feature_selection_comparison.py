@@ -7,11 +7,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.linear_model import LinearRegression, LassoCV
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.feature_selection import RFE, f_regression, SequentialFeatureSelector
-from sklearn.metrics import r2_score
+from sklearn.feature_selection import (
+    RFE, f_regression, f_classif, chi2, 
+    mutual_info_regression, SequentialFeatureSelector
+)
+from sklearn.metrics import r2_score, mean_squared_error
 
 # Set visual style
 sns.set_theme(style="whitegrid")
@@ -19,7 +22,7 @@ sns.set_theme(style="whitegrid")
 # Load dataset
 df = pd.read_csv("50_Startups.csv")
 
-# Train-test split
+# Train-test split (using random_state=0 for feature selection matching the template)
 X_raw = df.drop(columns=['Profit'])
 y = df['Profit']
 X_train, X_test, y_train, y_test = train_test_split(X_raw, y, test_size=0.2, random_state=0)
@@ -52,120 +55,189 @@ features = list(X_train_scaled.columns)
 print("Preprocessed features:", features)
 
 # =========================================================================
-# IMPLEMENTING THE 5 FEATURE SELECTION ALGORITHMS
+# IMPLEMENTING THE 9 FEATURE SELECTION ALGORITHMS
 # =========================================================================
+rankings = {}
 
-# 1. Recursive Feature Elimination (RFE)
+# 1. Correlation Analysis (Filter)
+corr_scores = [abs(np.corrcoef(X_train_scaled[col], y_train)[0, 1]) for col in features]
+rankings['Correlation Analysis'] = [features[i] for i in np.argsort(corr_scores)[::-1]]
+
+# Build min-max scaled features for Chi-Square scoring.
+scaler_minmax = MinMaxScaler()
+X_train_minmax = pd.DataFrame(scaler_minmax.fit_transform(X_train_scaled), columns=features)
+
+# Pre-bin target for classification-based filter methods (Chi-Square & ANOVA F-Test Classification)
+y_train_binned = pd.qcut(y_train, q=3, labels=False, duplicates='drop')
+
+# 2. Chi-Square Test (Filter)
+chi2_scores, _ = chi2(X_train_minmax, y_train_binned)
+rankings['Chi-Square Test'] = [features[i] for i in np.argsort(chi2_scores)[::-1]]
+
+# 3. ANOVA F-Test (Filter)
+f_class_scores, _ = f_classif(X_train_scaled, y_train_binned)
+rankings['ANOVA F-Test'] = [features[i] for i in np.argsort(f_class_scores)[::-1]]
+
+# 4. Mutual Information (Filter)
+mi_scores = mutual_info_regression(X_train_scaled, y_train, random_state=42)
+rankings['Mutual Information'] = [features[i] for i in np.argsort(mi_scores)[::-1]]
+
+# 5. SelectKBest (Filter)
+f_reg_scores, _ = f_regression(X_train_scaled, y_train)
+rankings['SelectKBest'] = [features[i] for i in np.argsort(f_reg_scores)[::-1]]
+
+# 6. Recursive Feature Elimination (RFE) (Wrapper)
 rfe = RFE(estimator=LinearRegression(), n_features_to_select=1)
 rfe.fit(X_train_scaled, y_train)
-rfe_sorted = [features[i] for i in np.argsort(rfe.ranking_)]
-print("RFE Ranked Features:", rfe_sorted)
+rankings['RFE'] = [features[i] for i in np.argsort(rfe.ranking_)]
 
-# 2. Lasso (L1 Regularization)
+# 7. Forward Selection (Wrapper)
+sfs_rank = []
+remaining_features = list(features)
+for k in range(1, 5):
+    sfs = SequentialFeatureSelector(LinearRegression(), n_features_to_select=k, direction='forward', cv=5)
+    sfs.fit(X_train_scaled, y_train)
+    selected = [features[i] for i in range(len(features)) if sfs.support_[i]]
+    new_feat = [f for f in selected if f not in sfs_rank]
+    if new_feat:
+        sfs_rank.append(new_feat[0])
+        remaining_features.remove(new_feat[0])
+sfs_rank.extend(remaining_features)
+rankings['Forward Selection'] = sfs_rank
+
+# 8. Lasso (L1 Regularization) (Embedded)
 lasso = LassoCV(cv=5, random_state=42)
 lasso.fit(X_train_scaled, y_train)
 lasso_coefs = np.abs(lasso.coef_)
-lasso_sorted = [features[i] for i in np.argsort(lasso_coefs)[::-1]]
-print("Lasso Ranked Features:", lasso_sorted)
+rankings['Lasso Regression'] = [features[i] for i in np.argsort(lasso_coefs)[::-1]]
 
-# 3. SelectKBest (f_regression / ANOVA F-test)
-f_scores, _ = f_regression(X_train_scaled, y_train)
-kbest_sorted = [features[i] for i in np.argsort(f_scores)[::-1]]
-print("SelectKBest Ranked Features:", kbest_sorted)
-
-# 4. Tree-based Feature Importance (Random Forest MDI)
+# 9. Tree-Based Feature Importance (Embedded)
 rf = RandomForestRegressor(n_estimators=100, random_state=42)
 rf.fit(X_train_scaled, y_train)
-rf_sorted = [features[i] for i in np.argsort(rf.feature_importances_)[::-1]]
-print("Random Forest Ranked Features:", rf_sorted)
+rankings['Tree-Based Importance'] = [features[i] for i in np.argsort(rf.feature_importances_)[::-1]]
 
-# 5. Sequential Feature Selector (SFS - Forward Selection)
-# SFS does not naturally provide a rank, so we query it for each k directly
-sfs_subsets = {}
-for k in range(1, 6):
-    if k == 5:
-        sfs_subsets[k] = features
-    else:
-        sfs = SequentialFeatureSelector(LinearRegression(), n_features_to_select=k, direction='forward', cv=5)
-        sfs.fit(X_train_scaled, y_train)
-        sfs_subsets[k] = [features[i] for i in range(len(features)) if sfs.support_[i]]
-    print(f"SFS Forward Selected Features (k={k}):", sfs_subsets[k])
-
+# Print the ranked features for each algorithm
+print("\n--- Ranked Features by Method ---")
+for method, ranked_f in rankings.items():
+    print(f"{method:<25}: {ranked_f}")
 
 # =========================================================================
 # EVALUATING PERFORMANCE AT EACH k (1 to 5)
 # =========================================================================
 k_values = [1, 2, 3, 4, 5]
-results = {
-    'RFE': [],
-    'Lasso': [],
-    'SelectKBest': [],
-    'Tree-Based': [],
-    'SFS (Forward)': []
-}
+r2_results = {method: [] for method in rankings.keys()}
+rmse_results = {method: [] for method in rankings.keys()}
 
 for k in k_values:
-    # Slice features up to k for ranked algorithms
-    sub_rfe = rfe_sorted[:k]
-    sub_lasso = lasso_sorted[:k]
-    sub_kbest = kbest_sorted[:k]
-    sub_rf = rf_sorted[:k]
-    sub_sfs = sfs_subsets[k]
-    
-    # Train and evaluate LinearRegression on each subset
-    for name, subset in [
-        ('RFE', sub_rfe),
-        ('Lasso', sub_lasso),
-        ('SelectKBest', sub_kbest),
-        ('Tree-Based', sub_rf),
-        ('SFS (Forward)', sub_sfs)
-    ]:
+    for method, ranked_f in rankings.items():
+        subset = ranked_f[:k]
         lr = LinearRegression()
         lr.fit(X_train_scaled[subset], y_train)
         y_pred = lr.predict(X_test_scaled[subset])
+        
         r2 = r2_score(y_test, y_pred)
-        results[name].append(r2)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        
+        r2_results[method].append(r2)
+        rmse_results[method].append(rmse)
 
-# Print results table
+# Print R2 results table
 print("\n--- Test R2 Scores at each k ---")
-res_df = pd.DataFrame(results, index=[f"k={k}" for k in k_values])
-print(res_df)
+r2_df = pd.DataFrame(r2_results, index=[f"k={k}" for k in k_values])
+print(r2_df.round(6))
+
+# Print RMSE results table
+print("\n--- Test RMSE Scores at each k ---")
+rmse_df = pd.DataFrame(rmse_results, index=[f"k={k}" for k in k_values])
+print(rmse_df.round(2))
 
 # =========================================================================
-# PLOTTING THE COMPARISON (All-in-One Figure)
+# PLOTTING THE COMPARISON (LINE CHARTS + SUMMARY TABLE)
 # =========================================================================
-plt.figure(figsize=(10, 6.5))
+fig = plt.figure(figsize=(15, 10))
+gs = fig.add_gridspec(2, 2, height_ratios=[3.1, 1.9], hspace=0.35, wspace=0.18)
+ax1 = fig.add_subplot(gs[0, 0])
+ax2 = fig.add_subplot(gs[0, 1])
+ax_table = fig.add_subplot(gs[1, :])
+ax_table.axis('off')
 
-colors = ['#06b6d4', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899']
-markers = ['o', 's', '^', 'D', 'v']
+colors = ['#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#f43f5e', '#3b82f6', '#14b8a6', '#6366f1', '#a855f7']
+markers = ['o', '^', 'D', 'v', 'p', '*', 'h', 'H', 'X']
 
-for i, (name, r2_scores) in enumerate(results.items()):
-    plt.plot(k_values, r2_scores, label=name, color=colors[i], marker=markers[i], linewidth=2.5, markersize=8)
+# Left subplot: RMSE
+for i, (method, rmse_scores) in enumerate(rmse_results.items()):
+    ax1.plot(k_values, rmse_scores, label=method, color=colors[i], marker=markers[i], linewidth=2, markersize=7)
+ax1.set_title("RMSE by Number of Features", fontsize=12, fontweight='bold')
+ax1.set_xlabel("Number of Features", fontsize=11)
+ax1.set_ylabel("RMSE", fontsize=11)
+ax1.set_xticks(k_values)
+ax1.grid(True, linestyle='--', alpha=0.5)
 
-plt.title("Feature Selection Performance Comparison (All-in-One)", fontsize=14, fontweight='bold', pad=15)
-plt.xlabel("Number of Features (k)", fontsize=12)
-plt.ylabel("Test R-squared (R2) Score", fontsize=12)
-plt.xticks(k_values)
-plt.ylim(0.80, 0.95)
-plt.grid(True, linestyle='--', alpha=0.6)
+# Right subplot: R-squared
+for i, (method, r2_scores) in enumerate(r2_results.items()):
+    ax2.plot(k_values, r2_scores, label=method, color=colors[i], marker=markers[i], linewidth=2, markersize=7)
+ax2.set_title("R-squared by Number of Features", fontsize=12, fontweight='bold')
+ax2.set_xlabel("Number of Features", fontsize=11)
+ax2.set_ylabel("R-squared", fontsize=11)
+ax2.set_xticks(k_values)
+ax2.set_ylim(0.80, 0.96)
+ax2.grid(True, linestyle='--', alpha=0.5)
 
-# Annotate directly on the figure
-note_text = (
-    "Key Findings & Remarks:\n"
-    "1. At k=1, all 5 algorithms select 'R&D Spend', achieving high R2 ~0.946.\n"
-    "2. At k=2, RFE, Lasso, SelectKBest, and RF select 'R&D Spend' + 'Marketing Spend'\n"
-    "   reaching the performance peak (R2 ~0.947).\n"
-    "3. Performance drops as k increases, converging to R2 ~0.935 at k=5 for all methods,\n"
-    "   demonstrating that Administration and regional dummy variables introduce noise."
+# Summary table under the line charts
+method_types = {
+    'Correlation Analysis': 'Filter',
+    'Chi-Square Test': 'Filter',
+    'ANOVA F-Test': 'Filter',
+    'Mutual Information': 'Filter',
+    'SelectKBest': 'Filter',
+    'RFE': 'Wrapper',
+    'Forward Selection': 'Wrapper',
+    'Lasso Regression': 'Embedded',
+    'Tree-Based Importance': 'Embedded',
+}
+table_rows = []
+for i, method in enumerate(rmse_results.keys()):
+    best_idx = int(np.argmax(r2_results[method]))
+    best_k = k_values[best_idx]
+    selected_features = ', '.join(rankings[method][:best_k])
+    table_rows.append([
+        method,
+        method_types[method],
+        f"k={best_k}",
+        f"{r2_results[method][best_idx]:.4f}",
+        f"{rmse_results[method][best_idx]:,.2f}",
+        selected_features,
+    ])
+
+table = ax_table.table(
+    cellText=table_rows,
+    colLabels=['Method', 'Type', 'Best k', 'Best R2', 'Best RMSE', 'Selected features at best k'],
+    loc='center',
+    cellLoc='left',
+    colLoc='left',
+    colWidths=[0.20, 0.10, 0.08, 0.09, 0.11, 0.42],
 )
-plt.text(1.1, 0.81, note_text, fontsize=9.2, fontweight='medium', 
-         bbox=dict(facecolor='white', alpha=0.95, edgecolor='#cbd5e1', boxstyle='round,pad=0.5'))
+table.auto_set_font_size(False)
+table.set_fontsize(8.5)
+table.scale(1, 1.45)
+for (row, col), cell in table.get_celld().items():
+    cell.set_edgecolor('#cbd5e1')
+    if row == 0:
+        cell.set_facecolor('#e2e8f0')
+        cell.set_text_props(weight='bold')
+    else:
+        cell.set_facecolor('#f8fafc' if row % 2 else 'white')
 
-plt.legend(loc='lower right', frameon=True, facecolor='white', edgecolor='#cbd5e1', fontsize=10)
-plt.tight_layout()
+plt.suptitle("Top 9 Feature Selection Methods Performance Comparison (50 Startups)", fontsize=14, fontweight='bold', y=0.98)
+plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-output_path = "allinone.png"
-plt.savefig(output_path, dpi=150)
+os.makedirs("feature_selection_plots", exist_ok=True)
+# Save both to feature_selection_plot.png and allinone.png to keep all links working
+plot_path = os.path.join("feature_selection_plots", "feature_selection_plot.png")
+allinone_path = os.path.join("feature_selection_plots", "allinone.png")
+
+plt.savefig(plot_path, dpi=180, bbox_inches='tight')
+plt.savefig(allinone_path, dpi=180, bbox_inches='tight')
 plt.close()
 
-print(f"\nSuccessfully generated and saved comparison plot to: {output_path}")
+print(f"\nSuccessfully generated and saved comparison plots to:\n  - {plot_path}\n  - {allinone_path}")
